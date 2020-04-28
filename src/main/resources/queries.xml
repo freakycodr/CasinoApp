@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<queries>
+    <query id = "api.fetch_casino_dealers_query" comments=" dealers against provided casino">
+        select dealer_id,dealer_name,casino_id,status from dealer_details where casino_id = :casinoId;
+    </query>
+
+    <query id="api.update_casino_balance_amount_query">
+        update casino_details set balance_amount = balance_amount + :amount where casino_id = :casinoId
+    </query>
+
+    <query id="api.stop_game_using_game_id_query">
+        update game_details
+        set status     = 'CLOSED',
+            end_time   = now(),
+            modified_at=now()
+        where game_id = :gameId
+    </query>
+
+    <query id="api.update_user_current_casino_query">
+        update user_details
+        set current_casino = :casinoId
+        where user_id = :userId
+    </query>
+
+    <query id="api.update_user_balance_amount_query">
+        update user_details
+        set balance_amount = balance_amount + :amount
+        where user_id = :userId
+    </query>
+
+    <query id="api.fetch_list_of_bettable_game_query">
+        select game_id, start_time, gd.dealer_id, dealer_name
+        from game_details gd
+                 join dealer_details dd on gd.dealer_id = dd.dealer_id
+                 join user_details ud on ud.current_casino = dd.casino_id
+        where gd.status = 'OPEN'
+          and user_id = :userId
+    </query>
+
+    <query id="api.update_user_cashout_query">
+        update user_details set balance_amount = 0 where user_id = :userId
+    </query>
+
+    <query id="check_game_open_for_bet_query">
+        select count(1) from game_details where status = 'OPEN' and game_id = :gameId
+    </query>
+
+    <query id="fetch_balance_of_user_query">
+        select balance_amount - current_bet_amount as balance_amount
+        from user_details ud
+                 left join (select sum(bet_amount) current_bet_amount, user_id
+                            from bet_details
+                            where bet_status is null
+                            group by user_id) user_current_bet
+                           on user_current_bet.user_id = ud.user_id
+        where ud.user_id = :userId;
+    </query>
+
+    <query id="fetch_list_of_bets_for_game_id_query">
+        select bet_id, bet_amount, bet_number, user_id
+        from bet_details
+        where game_id = :gameId
+    </query>
+
+    <query id="fetch_casino_id_using_game_id_query">
+        select dd.casino_id
+        from game_details gd
+        join dealer_details dd on gd.dealer_id = dd.dealer_id
+        where game_id = :gameId
+    </query>
+
+    <query id="api.update_thrown_number_to_game_query">
+        update game_details
+        set thrown_number = :thrownNumber
+        where game_id = :gameId
+    </query>
+
+</queries>
