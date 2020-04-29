@@ -91,4 +91,9 @@ public class UserDAO {
         return jdbcTemplate.queryForObject(queries.forId("fetch_balance_of_user_query"), ImmutableMap.of("userId", userId), Double.class);
     }
 
+    public Long fetchInProgressBetCountOfAnUser(Long userId) {
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        return jdbcTemplate.queryForObject(queries.forId("fetch_pending_bet_count_of_a_user_query"), ImmutableMap.of("userId", userId), Long.class);
+    }
+
 }

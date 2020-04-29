@@ -52,8 +52,12 @@ public class UserService {
 
     public Map<String, String> userCashOut(Long userId) {
         return Try.of(() -> {
-            userDAO.updateUserCashOut(userId);
-            return ImmutableMap.of("status", "success");
+            if (userDAO.fetchInProgressBetCountOfAnUser(userId) > 0) {
+                throw new RuntimeException("You have pending bets to be completed, so you can't make cash out now, try again later");
+            } else {
+                userDAO.updateUserCashOut(userId);
+                return ImmutableMap.of("status", "success");
+            }
         }).get();
     }
 

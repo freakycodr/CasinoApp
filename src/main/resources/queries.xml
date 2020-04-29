@@ -76,4 +76,8 @@
         where game_id = :gameId
     </query>
 
+    <query id="fetch_pending_bet_count_of_a_user_query">
+        select count(1) from bet_details where bet_status is null and user_id = :userId
+    </query>
+
 </queries>
